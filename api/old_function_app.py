@@ -61,14 +61,11 @@ tools = [
 ]
 
 
-openai_client = openai.AsyncAzureOpenAI(
+client = openai.AsyncAzureOpenAI(
     azure_endpoint=endpoint,
     api_key=api_key,
     api_version="2023-09-01-preview"
 )
-
-# define AI Search client with api key
-search_client = SearchClient(endpoint=search_endpoint, index_name=search_index_name, credential=AzureKeyCredential(search_key))
 
 
 def remove_html_tags(html_text):
@@ -178,7 +175,7 @@ async def stream_processor(response, messages):
                                 "content": function_response
                             })
 
-                            final_response = await openai_client.chat.completions.create(
+                            final_response = await client.chat.completions.create(
                                 model=deployment,
                                 temperature=temperature,
                                 max_tokens=1000,
@@ -210,45 +207,34 @@ async def stream_openai_text(req: Request) -> StreamingResponse:
     messages_obj = json.loads(body) if body else []
     messages = messages_obj['messages']
 
-    # azure_open_ai_response = await openai_client.chat.completions.create(
-    #     model=deployment,
-    #     temperature=temperature,
-    #     max_tokens=1000,
-    #     messages=messages,
-    #     tools=tools,
-    #     stream=True,
-    #     extra_body = {
-    #         "data_sources": [
-    #     {
-    #         "type": "azure_search",
-    #         "parameters": {
-    #             "endpoint": search_endpoint,
-    #             "index_name": search_index_name,
-    #             "authentication": {
-    #                 "type": "api_key",
-    #                 "key": search_key
-    #             }
-    #         }
-    #     }
-    # ]      
-
-    # )
-
-    # Perform search using Azure Search
-    search_results = search_client.search(search_text=messages[-1]['content'])
-    # Process search results and prepare for OpenAI
-    search_response = [{"role": "system", "content": result['content']} for result in search_results]
-
-    #Prepare the request for OpenAI
-    azure_open_ai_response = openai_client.chat.completions.create(
+    azure_open_ai_response = await client.chat.completions.create(
         model=deployment,
-        messages=search_response,
         temperature=temperature,
         max_tokens=1000,
-        stream=True
-    )
-    return StreamingResponse(stream_processor(azure_open_ai_response, messages), media_type="text/event-stream")
+        messages=messages,
+        tools=tools,
+        stream=True,
+        extra_body={
+            "data_sources": [
+                {
+                    "type": "azure_search",
+                    "parameters": {
+                        "endpoint": search_endpoint,  
+                    "index_name": search_index_name,  
+                    "authentication": {  
+                        "type": "api_key",
+                        "key": search_key 
+                    } 
+                    } 
+                }
+            ]
 
+        }
+        
+
+    )
+
+    return StreamingResponse(stream_processor(azure_open_ai_response, messages), media_type="text/event-stream")
 
 @app.route(route="get-ice-server-token", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
 def get_ice_server_token(req: Request) -> JSONResponse:
