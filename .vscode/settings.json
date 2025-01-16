@@ -1,8 +1,9 @@
 {
-    "azureFunctions.deploySubpath": "api",
+    "azureFunctions.deploySubpath": "api/bin/Release/net8.0/publish",
     "azureFunctions.scmDoBuildDuringDeployment": true,
-    "azureFunctions.projectLanguage": "Python",
+    "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",
-    "azureFunctions.projectLanguageModel": 2
+    "azureFunctions.projectLanguageModel": 2,
+    "azureFunctions.preDeployTask": "publish (functions)"
 }
