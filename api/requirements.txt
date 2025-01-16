@@ -4,6 +4,9 @@
 
 azure-functions
 azurefunctions-extensions-http-fastapi
+fastapi
+azure-core
+azure-search-documents
 openai
 pyodbc
 requests
