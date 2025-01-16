@@ -5,22 +5,20 @@ using Microsoft.Extensions.Logging;
 
 namespace AvatarApp.Function
 {
-    public class AvatarAppFunction
+    public class GetOpenAIResponse
     {
-        private readonly ILogger<AvatarAppFunction> _logger;
+        private readonly ILogger<GetOpenAIResponse> _logger;
 
-        public AvatarAppFunction(ILogger<AvatarAppFunction> logger)
+        public GetOpenAIResponse(ILogger<GetOpenAIResponse> logger)
         {
             _logger = logger;
         }
 
-        [Function("get-ice-server-token")]
+        [Function("get-oai-response")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
             return new OkObjectResult("Welcome to Azure Functions!");
         }
-
-        
     }
 }
