@@ -25,15 +25,6 @@ search_api_version = '2023-07-01-Preview'
 search_index_name = os.getenv("AZURE_SEARCH_INDEX")
 bing_key = os.getenv("BING_KEY")
 search_url = os.getenv("BING_SEARCH_URL")
-blob_sas_url = os.getenv("BLOB_SAS_URL")
-place_orders = False
-
-sql_db_server = os.getenv("SQL_DB_SERVER")
-sql_db_user = os.getenv("SQL_DB_USER")
-sql_db_password = os.getenv("SQL_DB_PASSWORD")
-sql_db_name = os.getenv("SQL_DB_NAME")
-server_connection_string = f"Driver={{ODBC Driver 17 for SQL Server}};Server=tcp:{sql_db_server},1433;Uid={sql_db_user};Pwd={sql_db_password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-database_connection_string = server_connection_string + f"Database={sql_db_name};"
 
 # Azure Open AI
 deployment = os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT"]
@@ -41,19 +32,27 @@ embeddings_deployment = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
 
 temperature = 0.7
 
+# Initialize the Azure OpenAI client
+openai_client = openai.AsyncAzureOpenAI(
+    azure_endpoint=endpoint,
+    api_key=api_key,
+    api_version="2023-09-01-preview"
+)
+
+ # Initialize the Azure Search client
+search_client = SearchClient(
+        endpoint=search_endpoint,
+        index_name=search_index_name,
+        credential=AzureKeyCredential(search_key)
+    )
+
 @app.route(route="get-oai-response", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
 async def stream_openai_text(req: Request) -> StreamingResponse:
     # Extract the input data from the request
     input_data = await req.json()
     search_query = input_data.get("query", "")
 
-    # Initialize the Azure Search client
-    search_client = SearchClient(
-        endpoint=search_endpoint,
-        index_name=search_index_name,
-        credential=AzureKeyCredential(search_key)
-    )
-
+   
     # Perform the search query
     search_results = search_client.search(search_query)
     documents = [doc for doc in search_results]
@@ -66,23 +65,24 @@ async def stream_openai_text(req: Request) -> StreamingResponse:
     ]
 
     # Call Azure OpenAI with chat and enable streaming
-    response = openai.ChatCompletion.create(
-        deployment_id=deployment,
-        model="gpt-4",
-        messages=messages,
+    azure_open_ai_response = await client.chat.completions.create(
+        model=deployment,
         temperature=temperature,
+        max_tokens=1000,
+        messages=messages
         stream=True
     )
 
+
     # Stream the response back to the client
     async def response_generator():
-        for chunk in response:
+        for chunk in azure_open_ai_response:
             yield chunk['choices'][0]['delta']['content']
 
-    return StreamingResponse(response_generator(), media_type="text/plain")
+    return StreamingResponse(response_generator(), media_type="text/event-stream")
 
 
-    @app.route(route="get-ice-server-token", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
+@app.route(route="get-ice-server-token", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
 def get_ice_server_token(req: Request) -> JSONResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
