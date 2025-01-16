@@ -12,75 +12,31 @@ from bs4 import BeautifulSoup
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 
-# Azure Function App
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
-api_key = os.environ["AZURE_OPENAI_API_KEY"]
 subscription_key = os.getenv("AZURE_SPEECH_API_KEY")
 region = os.getenv("AZURE_SPEECH_REGION")
-search_endpoint = os.getenv("AZURE_SEARCH_ENDPOINT")
-search_key = os.getenv("AZURE_SEARCH_API_KEY") 
-search_api_version = '2023-07-01-Preview'
-search_index_name = os.getenv("AZURE_SEARCH_INDEX")
-bing_key = os.getenv("BING_KEY")
-search_url = os.getenv("BING_SEARCH_URL")
 
-# Azure Open AI
-deployment = os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT"]
-embeddings_deployment = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
+@app.route(route="get-oai-response")
+def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Python HTTP trigger function processed a request.')
 
-temperature = 0.7
+    name = req.params.get('name')
+    if not name:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
+        else:
+            name = req_body.get('name')
 
-# Initialize the Azure OpenAI client
-openai_client = openai.AsyncAzureOpenAI(
-    azure_endpoint=endpoint,
-    api_key=api_key,
-    api_version="2023-09-01-preview"
-)
-
- # Initialize the Azure Search client
-search_client = SearchClient(
-        endpoint=search_endpoint,
-        index_name=search_index_name,
-        credential=AzureKeyCredential(search_key)
-    )
-
-@app.route(route="get-oai-response", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
-async def stream_openai_text(req: Request) -> StreamingResponse:
-    # Extract the input data from the request
-    input_data = await req.json()
-    search_query = input_data.get("query", "")
-
-   
-    # Perform the search query
-    search_results = search_client.search(search_query)
-    documents = [doc for doc in search_results]
-
-    # Prepare the messages for the OpenAI API
-    messages = [
-        {"role": "system", "content": "You are an AI assistant."},
-        {"role": "user", "content": search_query},
-        {"role": "assistant", "content": str(documents)}
-    ]
-
-    # Call Azure OpenAI with chat and enable streaming
-    azure_open_ai_response = await client.chat.completions.create(
-        model=deployment,
-        temperature=temperature,
-        max_tokens=1000,
-        messages=messages
-        stream=True
-    )
-
-
-    # Stream the response back to the client
-    async def response_generator():
-        for chunk in azure_open_ai_response:
-            yield chunk['choices'][0]['delta']['content']
-
-    return StreamingResponse(response_generator(), media_type="text/event-stream")
-
+    if name:
+        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+    else:
+        return func.HttpResponse(
+             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
+             status_code=200
+        )
 
 @app.route(route="get-ice-server-token", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
 def get_ice_server_token(req: Request) -> JSONResponse:
