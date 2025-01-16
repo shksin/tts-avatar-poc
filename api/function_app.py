@@ -9,6 +9,8 @@ import requests
 import json
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents import SearchClient
 
 # Azure Function App
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
@@ -39,218 +41,48 @@ embeddings_deployment = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
 
 temperature = 0.7
 
-tools = [     
-    
-    {
-        "type": "function",
-        "function": {
-            "name": "bing_web_search",
-            "description": "Search the web for questions about recent events, news or web pages related to AGL Electrify Now. Use only if the requested information is not already available in the conversation context.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "search_term": {
-                        "type": "string",
-                        "description": "User question optimized for a web search engine (examples: How to electrify with Electrify Now? Why buy an electric car?, etc.)"
-                    },
-                },
-                "required": ["search_term"],
-            }
-        }
-    }
-]
-
-
-openai_client = openai.AsyncAzureOpenAI(
-    azure_endpoint=endpoint,
-    api_key=api_key,
-    api_version="2023-09-01-preview"
-)
-
-# define AI Search client with api key
-search_client = SearchClient(endpoint=search_endpoint, index_name=search_index_name, credential=AzureKeyCredential(search_key))
-
-
-def remove_html_tags(html_text):
-    soup = BeautifulSoup(html_text, "html.parser")
-    return soup.get_text()
-
-def bing_web_search(search_term):
-    """Searches for news and webpages using the Bing Search API and returns matches in a string. Uses sinippets from search engine only. No scraping of web sites."""
-    logging.info(f'Searching for: {search_term}')
-
-    # bing search request
-    headers = {"Ocp-Apim-Subscription-Key": bing_key}
-    params = {"q": search_term, "textDecorations": True, "textFormat": "HTML", "count" : 5,}
-    response = requests.get(search_url, headers=headers, params=params)
-    response.raise_for_status()
-    search_results = response.json()
-
-    # consolidate news and webpage hits into string
-    results_str = f"Here are the web search search results for the user query: {search_term}\nThe search engine returned news and links to websites."
-
-    # Parsing news
-    if 'news' in search_results:
-        results_str += "\n*** News: ***"
-        news = search_results['news']['value']
-
-        for index, result in enumerate(news):
-            news_str = f"""
-        News {index + 1}/{len(news)}:
-        Title: {remove_html_tags(result.get('name', 'No title available'))}
-        Description: {remove_html_tags(result.get('description', 'No snippet available'))}
-        Provider: {result['provider'][0].get('name', 'No provider name available')}
-        URL: {result.get('url', 'No URL available')}
-        """
-            results_str += news_str
-
-    # Parsing webpage hits
-    results_str += "\n*** Web pages:***"
-    webpages = search_results['webPages']['value']
-
-    for index, result in enumerate(webpages):
-        news_str = f"""
-    Webpage {index + 1}/{len(webpages)}:
-    Title: {result.get('name', 'No title available')}
-    Snippet: {remove_html_tags(result.get('snippet', 'No snippet available'))}
-    Site name: {result.get('siteName', 'No site name available')}
-    URL: {result.get('url', 'No URL available')}
-    """
-        results_str += news_str
-
-    return results_str
-
-
-
-# Get data from Azure Open AI
-async def stream_processor(response, messages):
-
-    func_call = {
-                  "id": None,
-                  "type": "function",
-                  "function": {
-                        "name": None,
-                        "arguments": ""
-                  }
-                  }
-
-    async for chunk in response:
-        if len(chunk.choices) > 0:
-            delta = chunk.choices[0].delta
-
-            if delta.content is None:
-                if delta.tool_calls:
-                    tool_calls = delta.tool_calls
-                    tool_call = tool_calls[0]
-                    if tool_call.id != None:
-                        func_call["id"] = tool_call.id
-                    if tool_call.function.name != None:
-                        func_call["function"]["name"] = tool_call.function.name
-                    if tool_call.function.arguments != None:
-                        func_call["function"]["arguments"] += tool_call.function.arguments
-                        await asyncio.sleep(0.01)
-                        try:
-                            arguments = json.loads(func_call["function"]["arguments"])
-                            print(f"Function generation requested, calling function", func_call)
-                            messages.append({
-                                "content": None,
-                                "role": "assistant",
-                                "tool_calls": [func_call]
-                            })
-
-                            available_functions = {
-                                "bing_web_search": bing_web_search                                
-                            }
-                            function_to_call = available_functions[func_call["function"]["name"]] 
-
-                            function_response = function_to_call(**arguments)
-
-                            if function_to_call == get_product_information:
-                                product_info = json.loads(function_response)
-                                function_response = product_info['description']
-                                products = [display_product_info(product_info)]
-                                yield json.dumps(products[0])
-
-                            messages.append({
-                                "tool_call_id": func_call["id"],
-                                "role": "tool",
-                                "name": func_call["function"]["name"],
-                                "content": function_response
-                            })
-
-                            final_response = await openai_client.chat.completions.create(
-                                model=deployment,
-                                temperature=temperature,
-                                max_tokens=1000,
-                                messages=messages,
-                                stream=True
-                            )
-
-                            async for chunk in final_response:
-                                if len(chunk.choices) > 0:
-                                    delta = chunk.choices[0].delta
-                                    if delta.content:
-                                        await asyncio.sleep(0.01)
-                                        yield delta.content
-
-                        except Exception as e:
-                            print(e)
-
-            if delta.content: # Get remaining generated response if applicable
-                await asyncio.sleep(0.01)
-                yield delta.content
-
-
-# HTTP streaming Azure Function
 @app.route(route="get-oai-response", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
 async def stream_openai_text(req: Request) -> StreamingResponse:
+    # Extract the input data from the request
+    input_data = await req.json()
+    search_query = input_data.get("query", "")
 
-    body = await req.body()
+    # Initialize the Azure Search client
+    search_client = SearchClient(
+        endpoint=search_endpoint,
+        index_name=search_index_name,
+        credential=AzureKeyCredential(search_key)
+    )
 
-    messages_obj = json.loads(body) if body else []
-    messages = messages_obj['messages']
+    # Perform the search query
+    search_results = search_client.search(search_query)
+    documents = [doc for doc in search_results]
 
-    # azure_open_ai_response = await openai_client.chat.completions.create(
-    #     model=deployment,
-    #     temperature=temperature,
-    #     max_tokens=1000,
-    #     messages=messages,
-    #     tools=tools,
-    #     stream=True,
-    #     extra_body = {
-    #         "data_sources": [
-    #     {
-    #         "type": "azure_search",
-    #         "parameters": {
-    #             "endpoint": search_endpoint,
-    #             "index_name": search_index_name,
-    #             "authentication": {
-    #                 "type": "api_key",
-    #                 "key": search_key
-    #             }
-    #         }
-    #     }
-    # ]      
+    # Prepare the messages for the OpenAI API
+    messages = [
+        {"role": "system", "content": "You are an AI assistant."},
+        {"role": "user", "content": search_query},
+        {"role": "assistant", "content": str(documents)}
+    ]
 
-    # )
-
-    # Perform search using Azure Search
-    search_results = search_client.search(search_text=messages[-1]['content'])
-    # Process search results and prepare for OpenAI
-    search_response = [{"role": "system", "content": result['content']} for result in search_results]
-
-    #Prepare the request for OpenAI
-    azure_open_ai_response = openai_client.chat.completions.create(
-        model=deployment,
-        messages=search_response,
+    # Call Azure OpenAI with chat and enable streaming
+    response = openai.ChatCompletion.create(
+        deployment_id=deployment,
+        model="gpt-4",
+        messages=messages,
         temperature=temperature,
-        max_tokens=1000,
         stream=True
     )
-    return StreamingResponse(stream_processor(azure_open_ai_response, messages), media_type="text/event-stream")
+
+    # Stream the response back to the client
+    async def response_generator():
+        for chunk in response:
+            yield chunk['choices'][0]['delta']['content']
+
+    return StreamingResponse(response_generator(), media_type="text/plain")
 
 
-@app.route(route="get-ice-server-token", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
+    @app.route(route="get-ice-server-token", methods=[func.HttpMethod.GET, func.HttpMethod.POST])
 def get_ice_server_token(req: Request) -> JSONResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
