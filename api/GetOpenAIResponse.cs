@@ -13,6 +13,7 @@ using OpenAI;
 using System.ClientModel;
 using Azure.AI.OpenAI.Chat;
 using Newtonsoft.Json;
+using api;
 
 namespace AvatarApp.Function
 {
@@ -45,7 +46,8 @@ namespace AvatarApp.Function
 
             //Extract the input data from the request
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var content = new StringContent(JsonConvert.SerializeObject(requestBody), System.Text.Encoding.UTF8, "application/json");
+            var messages = JsonConvert.DeserializeObject<List<ChatMessage>>(requestBody);
+            //serialise the o
 
             //Intialise Azure OpenAI client 
             AzureOpenAIClient azureClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
@@ -66,11 +68,7 @@ namespace AvatarApp.Function
 
             // call CompletChatStream method to get the response from Azure OpenAI
 
-            CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(
-        [
-        new SystemChatMessage("You are a helpful assistant that gives information about AGL Elictrify now program"),
-                    new UserChatMessage("Hi, can you help me understand the program")
-                ]);
+            CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(messages);
 
             req.HttpContext.Response.Headers.Append("Content-Type", "text/event-stream");
             foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
