@@ -18,20 +18,20 @@ namespace AvatarApp.Function
     public class GetOpenAIResponse
     {
         private readonly ILogger<GetOpenAIResponse> _logger;
-        private readonly SearchClient _searchClient;
-        private readonly OpenAIClient _openAIClient;
-        string azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-        string azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
-        string deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_ID");
-        string searchEndpoint = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_ENDPOINT");
-        string searchKey = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_API_KEY");
-        string searchIndex = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_INDEX");
+        //private readonly SearchClient _searchClient;
+        //private readonly OpenAIClient _openAIClient;
+        //string azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
+        //string azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
+        //string deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_ID");
+        //string searchEndpoint = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_ENDPOINT");
+        //string searchKey = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_API_KEY");
+        //string searchIndex = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_INDEX");
 
         public GetOpenAIResponse(ILogger<GetOpenAIResponse> logger)
         {
             _logger = logger;
-            _searchClient = new SearchClient(new Uri(searchEndpoint), searchIndex, new AzureKeyCredential(searchKey));
-            _openAIClient = new OpenAIClient(new ApiKeyCredential(azureOpenAIKey), new OpenAIClientOptions { Endpoint = new Uri(azureOpenAIEndpoint) } );
+            //_searchClient = new SearchClient(new Uri(searchEndpoint), searchIndex, new AzureKeyCredential(searchKey));
+            //_openAIClient = new OpenAIClient(new ApiKeyCredential(azureOpenAIKey), new OpenAIClientOptions { Endpoint = new Uri(azureOpenAIEndpoint) } );
         }
 
         [Function("get-oai-response")]
@@ -98,6 +98,8 @@ namespace AvatarApp.Function
                 await req.HttpContext.Response.Body.FlushAsync();
                 await Task.Delay(1000); // Simulate delay
             }
+
+            return new EmptyResult();
 
         }
     }
