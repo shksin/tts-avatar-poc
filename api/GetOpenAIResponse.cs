@@ -12,26 +12,27 @@ using OpenAI.Chat;
 using OpenAI;
 using System.ClientModel;
 using Azure.AI.OpenAI.Chat;
+using Newtonsoft.Json;
 
 namespace AvatarApp.Function
 {
     public class GetOpenAIResponse
     {
         private readonly ILogger<GetOpenAIResponse> _logger;
-        //private readonly SearchClient _searchClient;
-        //private readonly OpenAIClient _openAIClient;
-        //string azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-        //string azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
-        //string deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_ID");
-        //string searchEndpoint = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_ENDPOINT");
-        //string searchKey = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_API_KEY");
-        //string searchIndex = Environment.GetEnvironmentVariable("AZURE_AI_SEARCH_INDEX");
+        private readonly SearchClient _searchClient;
+        private readonly AzureOpenAIClient _openAIClient;
+        string azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
+        string azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
+        string deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHAT_DEPLOYMENT");
+        string searchEndpoint = Environment.GetEnvironmentVariable("AZURE_SEARCH_ENDPOINT");
+        string searchKey = Environment.GetEnvironmentVariable("AZURE_SEARCH_API_KEY");
+        string searchIndex = Environment.GetEnvironmentVariable("AZURE_SEARCH_INDEX");
 
         public GetOpenAIResponse(ILogger<GetOpenAIResponse> logger)
         {
             _logger = logger;
-            //_searchClient = new SearchClient(new Uri(searchEndpoint), searchIndex, new AzureKeyCredential(searchKey));
-            //_openAIClient = new OpenAIClient(new ApiKeyCredential(azureOpenAIKey), new OpenAIClientOptions { Endpoint = new Uri(azureOpenAIEndpoint) } );
+            _searchClient = new SearchClient(new Uri(searchEndpoint), searchIndex, new AzureKeyCredential(searchKey));
+            _openAIClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
         }
 
         [Function("get-oai-response")]
@@ -39,65 +40,56 @@ namespace AvatarApp.Function
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-//            // Extract the input data from the request
-//            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-//            var inputData = JObject.Parse(requestBody);
-//            string searchQuery = inputData["query"]?.ToString() ?? "";
 
+            //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-//            AzureOpenAIClient azureClient = new(
-//            new Uri(azureOpenAIEndpoint),
-//            new ApiKeyCredential(azureOpenAIKey));
+            //Extract the input data from the request
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var content = new StringContent(JsonConvert.SerializeObject(requestBody), System.Text.Encoding.UTF8, "application/json");
 
-//            ChatClient chatClient = azureClient.GetChatClient(deploymentName);
+            //Intialise Azure OpenAI client 
+            AzureOpenAIClient azureClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
 
-//            // Extension methods to use data sources with options are subject to SDK surface changes. Suppress the
-//            // warning to acknowledge and this and use the subject-to-change AddDataSource method.
-//#pragma warning disable AOAI001
+            ChatClient chatClient = azureClient.GetChatClient(deploymentName);
 
-//            ChatCompletionOptions options = new();
-//            options.AddDataSource(new AzureSearchChatDataSource()
-//            {
-//                Endpoint = new Uri(searchEndpoint),
-//                IndexName = searchIndex,
-//                Authentication = DataSourceAuthentication.FromApiKey(searchKey),
-//            });
+            // Extension methods to use data sources with options are subject to SDK surface changes. Suppress the
+            // warning to acknowledge and this and use the subject-to-change AddDataSource method.
+#pragma warning disable AOAI001
 
-//            // call CompletChatStream method to get the response from Azure OpenAI
+            ChatCompletionOptions options = new() { Temperature = (float?)0.7, MaxOutputTokenCount = 1000 };
+            options.AddDataSource(new AzureSearchChatDataSource()
+            {
+                Endpoint = new Uri(searchEndpoint),
+                IndexName = searchIndex,
+                Authentication = DataSourceAuthentication.FromApiKey(searchKey),
+            });
 
-//            CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(
-//    [
-//        new SystemChatMessage("You are a helpful assistant that talks like a pirate."),
-//        new UserChatMessage("Hi, can you help me?"),
-//        new AssistantChatMessage("Arrr! Of course, me hearty! What can I do for ye?"),
-//        new UserChatMessage("What's the best way to train a parrot?"),
-//    ]);
+            // call CompletChatStream method to get the response from Azure OpenAI
 
-//            async Task StreamResponse(Stream responseStream)
-//            {
-//                using (StreamWriter writer = new StreamWriter(responseStream))
-//                {
-//                    foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
-//                    {
-//                        foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
-//                        {
-//                            await writer.WriteAsync($"data: {contentPart.Text}\n\n");
-//                            await writer.FlushAsync();
-//                        }
-//                    }
-//                }
-//            }
-
+            CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(
+        [
+        new SystemChatMessage("You are a helpful assistant that gives information about AGL Elictrify now program"),
+                    new UserChatMessage("Hi, can you help me understand the program")
+                ]);
 
             req.HttpContext.Response.Headers.Append("Content-Type", "text/event-stream");
-
-
-            for (int i = 0; i < 10; i++)
+            foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
             {
-                await req.HttpContext.Response.WriteAsync($"data: Message {i}\n\n");
-                await req.HttpContext.Response.Body.FlushAsync();
-                await Task.Delay(1000); // Simulate delay
+                foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
+                {
+                    await req.HttpContext.Response.WriteAsync($"data: {contentPart.Text}\n\n");
+                    await req.HttpContext.Response.Body.FlushAsync();
+                    await Task.Delay(100); // Simulate delay
+                }
             }
+
+
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    await req.HttpContext.Response.WriteAsync($"data: Message {i}\n\n");
+            //    await req.HttpContext.Response.Body.FlushAsync();
+            //    await Task.Delay(1000); // Simulate delay
+            //}
 
             return new EmptyResult();
 
