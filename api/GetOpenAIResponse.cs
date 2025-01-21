@@ -41,56 +41,65 @@ namespace AvatarApp.Function
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
+            try
+            {
+                //Extract the input data from the request
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                var rootObject = JsonConvert.DeserializeObject<Root>(requestBody);
 
-            //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+               var chatMessages = new List<ChatMessage>();
+               foreach (var message in rootObject.Messages)
+               {
+                    switch (message.Role)
+                    {
+                        case Role.System:
+                            chatMessages.Add(new SystemChatMessage(message.Content));
+                            break;
+                        case Role.User:
+                            chatMessages.Add(new UserChatMessage(message.Content));
+                            break;
+                        }
+                    }
 
-            //Extract the input data from the request
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var messages = JsonConvert.DeserializeObject<List<ChatMessage>>(requestBody);
-            //serialise the o
 
-            //Intialise Azure OpenAI client 
-            AzureOpenAIClient azureClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
+                //Intialise Azure OpenAI client 
+                AzureOpenAIClient azureClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
 
-            ChatClient chatClient = azureClient.GetChatClient(deploymentName);
+                ChatClient chatClient = azureClient.GetChatClient(deploymentName);
 
-            // Extension methods to use data sources with options are subject to SDK surface changes. Suppress the
-            // warning to acknowledge and this and use the subject-to-change AddDataSource method.
+                // Extension methods to use data sources with options are subject to SDK surface changes. Suppress the
+                // warning to acknowledge and this and use the subject-to-change AddDataSource method.
 #pragma warning disable AOAI001
 
-            ChatCompletionOptions options = new() { Temperature = (float?)0.7, MaxOutputTokenCount = 1000 };
-            options.AddDataSource(new AzureSearchChatDataSource()
-            {
-                Endpoint = new Uri(searchEndpoint),
-                IndexName = searchIndex,
-                Authentication = DataSourceAuthentication.FromApiKey(searchKey),
-            });
-
-            // call CompletChatStream method to get the response from Azure OpenAI
-
-            CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(messages);
-
-            req.HttpContext.Response.Headers.Append("Content-Type", "text/event-stream");
-            foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
-            {
-                foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
+                ChatCompletionOptions options = new() { Temperature = (float?)0.7, MaxOutputTokenCount = 1000 };
+                options.AddDataSource(new AzureSearchChatDataSource()
                 {
-                    await req.HttpContext.Response.WriteAsync(contentPart.Text);
-                    await req.HttpContext.Response.Body.FlushAsync();
-                    await Task.Delay(100); // Simulate delay
+                    Endpoint = new Uri(searchEndpoint),
+                    IndexName = searchIndex,
+                    Authentication = DataSourceAuthentication.FromApiKey(searchKey),
+                });
+
+                // call CompletChatStream method to get the response from Azure OpenAI
+
+                CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(chatMessages);
+
+                req.HttpContext.Response.Headers.Append("Content-Type", "text/event-stream");
+                foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
+                {
+                    foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
+                    {
+                        await req.HttpContext.Response.WriteAsync(contentPart.Text);
+                        await req.HttpContext.Response.Body.FlushAsync();
+                        await Task.Delay(100); // Simulate delay
+                    }
                 }
             }
-
-
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    await req.HttpContext.Response.WriteAsync($"data: Message {i}\n\n");
-            //    await req.HttpContext.Response.Body.FlushAsync();
-            //    await Task.Delay(1000); // Simulate delay
-            //}
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
 
             return new EmptyResult();
-
         }
     }
 }
