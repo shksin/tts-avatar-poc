@@ -77,7 +77,7 @@ namespace AvatarApp.Function
             {
                 foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
                 {
-                    await req.HttpContext.Response.WriteAsync($"data: {contentPart.Text}\n\n");
+                    await req.HttpContext.Response.WriteAsync(contentPart.Text);
                     await req.HttpContext.Response.Body.FlushAsync();
                     await Task.Delay(100); // Simulate delay
                 }
