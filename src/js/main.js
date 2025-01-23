@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 const system_prompt = `
-You are an AI assistant that helps people find information about AGL Electrify Now sustainability program
+You are an AI assistant that helps people find information about Tech Innovators Summit 2025
 - Before calling a function, aim to answer queries using the existing conversational context.
 - Before seeking information, scan previous parts of the conversation. Reuse information if available, avoiding repetitive queries.
 - Never Guess. If a user's request is unclear, request further clarification.
@@ -12,7 +12,7 @@ You are an AI assistant that helps people find information about AGL Electrify N
 `
 
 var TTSVoice = "en-US-AvaMultilingualNeural" // Update this value if you want to use a different voices
-const CogSvcRegion = "eastus2" // Fill your Azure cognitive services region here, e.g. westus2
+const CogSvcRegion = "southeastasia" // Fill your Azure cognitive services region here, e.g. westus2
 var TalkingAvatarCharacter = "Meg"
 var TalkingAvatarStyle = "formal"
 const continuousRecording = false
@@ -399,7 +399,7 @@ window.stopSession = () => {
 }
 
 window.startRecording = () => {
-  const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, 'eastus2');
+  const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, 'southeastasia');
   speechConfig.authorizationToken = token;
   speechConfig.SpeechServiceConnection_LanguageIdMode = "Continuous";
   var autoDetectSourceLanguageConfig = SpeechSDK.AutoDetectSourceLanguageConfig.fromLanguages(supported_languages);
