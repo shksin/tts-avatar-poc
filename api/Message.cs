@@ -10,6 +10,7 @@ namespace api
     public enum Role
     {
         System,
+        Assistant,
         User
     }
 

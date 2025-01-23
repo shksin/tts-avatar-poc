@@ -55,10 +55,13 @@ namespace AvatarApp.Function
                         case Role.System:
                             chatMessages.Add(new SystemChatMessage(message.Content));
                             break;
+                        case Role.Assistant:
+                            chatMessages.Add(new AssistantChatMessage(message.Content));
+                            break;
                         case Role.User:
                             chatMessages.Add(new UserChatMessage(message.Content));
                             break;
-                        }
+                    }
                     }
 
 
