@@ -12,12 +12,12 @@ You are an AI assistant that helps people find information about Tech Innovators
 `
 
 var TTSVoice = "en-US-AvaMultilingualNeural" // Update this value if you want to use a different voices
-const CogSvcRegion = "australiaeast" // Fill your Azure cognitive services region here, e.g. westus2
+const CogSvcRegion = "southeastasia" // Fill your Azure cognitive services region here, e.g. westus2
 var TalkingAvatarCharacter = "Meg"
 var TalkingAvatarStyle = "formal"
 const continuousRecording = false
 
-supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
+supported_languages = ["en-US", "de-DE", "zh-CN", "hi-IN"] // The language detection engine supports a maximum of 4 languages
 
 const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
 
