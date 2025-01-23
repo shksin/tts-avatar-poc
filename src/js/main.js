@@ -19,7 +19,8 @@ var TalkingAvatarCharacter = "Meg"
 var TalkingAvatarStyle = "formal"
 const continuousRecording = false
 
-supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
+//supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
+supported_languages = ["en-US", "zh-HK", "zh-CN", "hi-IN"]
 
 const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
 
