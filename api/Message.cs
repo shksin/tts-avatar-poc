@@ -20,7 +20,7 @@ namespace api
         public Role Role { get; set; }
 
         [JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
     }
 
     public class Root

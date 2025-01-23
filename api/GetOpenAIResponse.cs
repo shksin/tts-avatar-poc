@@ -20,19 +20,17 @@ namespace AvatarApp.Function
     public class GetOpenAIResponse
     {
         private readonly ILogger<GetOpenAIResponse> _logger;
-        private readonly SearchClient _searchClient;
         private readonly AzureOpenAIClient _openAIClient;
-        string azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-        string azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
-        string deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHAT_DEPLOYMENT");
-        string searchEndpoint = Environment.GetEnvironmentVariable("AZURE_SEARCH_ENDPOINT");
-        string searchKey = Environment.GetEnvironmentVariable("AZURE_SEARCH_API_KEY");
-        string searchIndex = Environment.GetEnvironmentVariable("AZURE_SEARCH_INDEX");
+        string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
+        string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
+        string? deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHAT_DEPLOYMENT");
+        string? searchEndpoint = Environment.GetEnvironmentVariable("AZURE_SEARCH_ENDPOINT");
+        string? searchKey = Environment.GetEnvironmentVariable("AZURE_SEARCH_API_KEY");
+        string? searchIndex = Environment.GetEnvironmentVariable("AZURE_SEARCH_INDEX");
 
         public GetOpenAIResponse(ILogger<GetOpenAIResponse> logger)
         {
             _logger = logger;
-            _searchClient = new SearchClient(new Uri(searchEndpoint), searchIndex, new AzureKeyCredential(searchKey));
             _openAIClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
         }
 
@@ -45,6 +43,7 @@ namespace AvatarApp.Function
             {
                 //Extract the input data from the request
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                _logger.LogInformation(requestBody);
                 var rootObject = JsonConvert.DeserializeObject<Root>(requestBody);
 
                var chatMessages = new List<ChatMessage>();
@@ -65,10 +64,12 @@ namespace AvatarApp.Function
                     }
 
 
-                //Intialise Azure OpenAI client 
-                AzureOpenAIClient azureClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
+                
 
-                ChatClient chatClient = azureClient.GetChatClient(deploymentName);
+                _logger.LogInformation($"Azure OpenAI Chat deploymentName used {deploymentName}");
+
+                ChatClient chatClient = _openAIClient.GetChatClient(deploymentName);
+                _logger.LogInformation("ChatClient initialized");
 
                 // Extension methods to use data sources with options are subject to SDK surface changes. Suppress the
                 // warning to acknowledge and this and use the subject-to-change AddDataSource method.
@@ -91,18 +92,25 @@ namespace AvatarApp.Function
                 {
                     foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
                     {
+                        _logger.LogInformation(contentPart.Text);
                         await req.HttpContext.Response.WriteAsync(contentPart.Text);
                         await req.HttpContext.Response.Body.FlushAsync();
-                        await Task.Delay(100); // Simulate delay
+                        //await Task.Delay(10); // Simulate delay
                     }
                 }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                return new ContentResult
+                {
+                    Content = $"{{\"error\": \"{ex.Message + ex.StackTrace}\"}}",
+                    ContentType = "application/json",
+                    StatusCode = (int)200
+                };
             }
 
-            return new EmptyResult();
+            return new StatusCodeResult((int)200);
         }
     }
 }
