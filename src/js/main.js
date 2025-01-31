@@ -13,14 +13,14 @@ You are an AI assistant that helps people find information about Tech Innovators
 - IMPORTANT: Pay attention to the language the customer is using in their latest statement and ALWAYS respond in the same language!
 `
 
-var TTSVoice = "en-US-AvaMultilingualNeural" // Update this value if you want to use a different voices
+var TTSVoice = "en-AU-AvaNeural" // Update this value if you want to use a different voices
 const CogSvcRegion = "southeastasia" // Fill your Azure cognitive services region here, e.g. westus2
-var TalkingAvatarCharacter = "Meg"
-var TalkingAvatarStyle = "formal"
+var TalkingAvatarCharacter = "Lisa"
+var TalkingAvatarStyle = "casual-sitting"
 const continuousRecording = false
 
 //supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
-supported_languages = ["en-US", "zh-HK", "zh-CN", "hi-IN"]
+supported_languages = ["en-AU", "zh-HK", "zh-CN", "hi-IN"]
 
 const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
 
@@ -321,14 +321,13 @@ function connectToAvatarService() {
 
   TalkingAvatarCharacter = document.getElementById("avatar-name").value
   switch(TalkingAvatarCharacter) {
-    case "Lisa":
+    case "Natasha":
       TalkingAvatarStyle = "casual-sitting"
-      break
-    case "Meg":
-      TalkingAvatarStyle = "formal"
-      break
+      TTSVoice = "en-AU-NatashaNeural"
+      break    
     case "Max":
       TalkingAvatarStyle = "business"
+      TTSVoice = "en-AU-MaxNeural"
       break
      
   }
@@ -354,7 +353,7 @@ window.startSession = () => {
   var parentElement = document.getElementById("playVideo");
   parentElement.prepend(iconElement);
 
-  TTSVoice = document.getElementById("avatar-voice").value
+  // TTSVoice = document.getElementById("avatar-voice").value
 
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
