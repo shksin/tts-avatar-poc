@@ -13,7 +13,7 @@ You are an AI assistant that helps people find information about Tech Innovators
 - IMPORTANT: Pay attention to the language the customer is using in their latest statement and ALWAYS respond in the same language!
 `
 
-var TTSVoice = "en-AU-AvaNeural" // Update this value if you want to use a different voices
+var TTSVoice = "en-AU-NatashaNeural" // Update this value if you want to use a different voices
 const CogSvcRegion = "southeastasia" // Fill your Azure cognitive services region here, e.g. westus2
 var TalkingAvatarCharacter = "Lisa"
 var TalkingAvatarStyle = "casual-sitting"
@@ -321,13 +321,13 @@ function connectToAvatarService() {
 
   TalkingAvatarCharacter = document.getElementById("avatar-name").value
   switch(TalkingAvatarCharacter) {
-    case "Natasha":
+    case "Lisa":
       TalkingAvatarStyle = "casual-sitting"
       TTSVoice = "en-AU-NatashaNeural"
       break    
     case "Max":
       TalkingAvatarStyle = "business"
-      TTSVoice = "en-AU-MaxNeural"
+      TTSVoice = "en-AU-WilliamNeural"
       break
      
   }
