@@ -325,10 +325,10 @@ function connectToAvatarService() {
       TalkingAvatarStyle = "casual-sitting"
       break
     case "Meg":
-      TalkingAvatarStyle = "casual"
-      break
-    case "Mark":
       TalkingAvatarStyle = "formal"
+      break
+    case "Max":
+      TalkingAvatarStyle = "business"
       break
      
   }
