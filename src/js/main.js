@@ -13,10 +13,10 @@ You are an AI assistant that helps people find information about Tech Innovators
 - IMPORTANT: Pay attention to the language the customer is using in their latest statement and ALWAYS respond in the same language!
 `
 
-var TTSVoice = "en-AU-NatashaNeural" // Update this value if you want to use a different voices
+var TTSVoice = "en-AU-WilliamNeural" // Update this value if you want to use a different voices
 const CogSvcRegion = "southeastasia" // Fill your Azure cognitive services region here, e.g. westus2
-var TalkingAvatarCharacter = "Lisa"
-var TalkingAvatarStyle = "casual-sitting"
+var TalkingAvatarCharacter = "Max"
+var TalkingAvatarStyle = "business"
 const continuousRecording = false
 
 //supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
