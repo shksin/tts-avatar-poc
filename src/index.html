@@ -88,18 +88,18 @@
   <div id="loginOverlay">
     <div id="gradientOverlay">
       <div class="loginCard">
-        <div class="loginCard__header">Login</div>
+        <div class="loginCard__header">AGL Tech Conference Login</div>
 
         <fluent-text-field appearance="outline" placeholder="admin@agl.com.au">Username</fluent-text-field>
         <fluent-text-field appearance="outline" placeholder="****************">Password</fluent-text-field>
 
-        <div style="font-size: 14px;">
-          Pick your co-host
+        <!-- <div style="font-size: 14px;display: flex;margin-top: 4px;"> -->
+          <fluent-label for="avatar-name" appearance="outline">Pick your co-host</fluent-label>
           <!-- <div style="display: flex; margin-top: 4px;"> -->
-          <fluent-select id="avatar-name" style="min-width: 100px" title="Select a section">
+          <fluent-select id="avatar-name" appearance="outline" title="Select a section">
             <fluent-option value="Lisa">Lisa</fluent-option>
             <!-- <fluent-option value="Meg">Meg</fluent-option> -->
-            <fluent-option value="max">Max</fluent-option>
+            <fluent-option value="Max">Max</fluent-option>
           </fluent-select>
 
           <!-- <fluent-select id="avatar-voice" style="min-width: 100px" title="Select a section">
@@ -108,7 +108,7 @@
             <fluent-option value="en-US-AndrewMultilingualNeural">Darren</fluent-option>
           </fluent-select> -->
         <!-- </div> -->
-        </div>
+        <!-- </div> -->
 
         <button id="playVideo" onclick="window.startSession()">
           <span id="playVideo__text" class="playVideo__text">Login</span>
