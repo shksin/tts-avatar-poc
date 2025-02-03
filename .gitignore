@@ -176,3 +176,5 @@ sam*.pth
 **/*.ipynb_aml_checkpoints*
 **/*amltmp
 avatar/video/.DS_Store
+.vs/*
+api/Properties/*
