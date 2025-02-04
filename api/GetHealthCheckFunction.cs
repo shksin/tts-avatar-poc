@@ -5,17 +5,17 @@ using Microsoft.Extensions.Logging;
 
 namespace api
 {
-    public class Function
+    public class GetHealthCheckFunction
     {
-        private readonly ILogger<Function> _logger;
+        private readonly ILogger<GetHealthCheckFunction> _logger;
 
-        public Function(ILogger<Function> logger)
+        public GetHealthCheckFunction(ILogger<GetHealthCheckFunction> logger)
         {
             _logger = logger;
         }
 
-        [Function("")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req)
+        [Function("health")]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
             return new OkObjectResult("API is up and running!!");

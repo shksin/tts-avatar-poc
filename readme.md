@@ -16,25 +16,30 @@ The quickest way to do this via Azure AI Foundry Portal. Follow the steps below 
    ![AI Foundry Chat Playground](src/images/aifoundry-chatpg.png)
 5. Select following values in the dropdown and give a name to the index.
    > **Note:** Note the name of the index specified here, as we will need it to update the Environment variables in the Azure Functions app.
-
+   
    ![Add Data Source](src/images/adddatasource.png)
 6. Click *Next* and upload the files
    ![Upload Files](src/images//uploadfiles.png)
 7. Click on *Upload files* button, the files should upload successfully.
    ![Uploaded files](src/images/filesuploaded.png)
 8. Click on the *Next* button. On the Data Management page, keep the default selection and click on the *Next* button.
+![alt text](src/images/data-management.png)
 9. On the Data connection page, select authentication type as the *API key* and click on the *Next* button.
    ![alt text](src/images/dataconnectionauth.png)
 10. Review the settings and click on the *Save and close* button
     ![alt text](src/images/review.png)
+11. Document Ingestion and Index creation will start.
+![alt text](src/images/ingestion-inprogress.png)
+Wait for the process to complete. Once the process is complete, you will see the index details on the screen.
+![alt text](src/images/ingestioncomplete.png)
 
-
-### 2: Configure the index in the Azure Function App
+### 2: Configure the index name in the Azure Function App
 
 1. Go to the Azure Function App - *avatarcohostapi*
 2. Select *Settings >> Environment variables* from the left side menu   
 ![alt text](src/images/functionapp-envvars.png)
 3. Click on the *AZURE_SEARCH_INDEX* environment variable and update the value with the name of the index created in the previous step. Click on the *Apply* button on this screen.
+![alt text](image-5.png)
 ![alt text](src/images/searchindexvar.png)
 4. Click on the *Apply* button on the main page of Environment Variables to save the changes.
 ![alt text](src/images/env-vars-apply.png)

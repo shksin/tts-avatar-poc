@@ -17,9 +17,9 @@ using api;
 
 namespace AvatarApp.Function
 {
-    public class GetOpenAIResponse
+    public class GetOpenAIResponseFunction
     {
-        private readonly ILogger<GetOpenAIResponse> _logger;
+        private readonly ILogger<GetOpenAIResponseFunction> _logger;
         private readonly AzureOpenAIClient _openAIClient;
         string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
         string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
@@ -28,7 +28,7 @@ namespace AvatarApp.Function
         string? searchKey = Environment.GetEnvironmentVariable("AZURE_SEARCH_API_KEY");
         string? searchIndex = Environment.GetEnvironmentVariable("AZURE_SEARCH_INDEX");
 
-        public GetOpenAIResponse(ILogger<GetOpenAIResponse> logger)
+        public GetOpenAIResponseFunction(ILogger<GetOpenAIResponseFunction> logger)
         {
             _logger = logger;
             _openAIClient = new(new Uri(azureOpenAIEndpoint), new ApiKeyCredential(azureOpenAIKey));
