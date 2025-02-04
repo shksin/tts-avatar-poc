@@ -1,95 +1,48 @@
-# Shop Easily Using Talking Avatar - Trailblazers Outdoor Gear
+# Text to Speech Avatar as CoHost
 
 <img src="./demo-screenshot.png" alt="drawing" style="width:1200px;"/>
 
-This solution accelerator can be used to deploy an application that offers an interactive shopping experience using a talking avatar. It uses Azure OpenAI combined with data stored on Cognitive Search and Azure SQL to generate answers.
 
-## Getting started
+## Uploading content to Azure OpenAI for Avatar CoHost to use as grounding data
 
-1. Start by forking this repo 
+### 1. Upload Documents and Create Index via Azure AI Foundry Portal
 
-2. Create the following Azure resources:
+The quickest way to do this via Azure AI Foundry Portal. Follow the steps below to create a new index:
 
-    - Azure OpenAI Service with these models deployed
-      -  gpt-35-turbo (note: **version 0613 or higher is required**)
-      - text-embedding-ada-002 (version 2)
-   - Azure AI Search with default settings
-   - Azure SQL with the following settings
-     - Authentication: SQL and Microsoft Entra authentication enabled
-     - Networking: Allow Azure services and resources to access this server enabled
-   - Azure Speech Service
-   - Azure AI services multi-service account
-   - Azure Blob Storage account
-   - Bing Search service
+1. Select your Azure OpenAI resource - *avatarcohostai*
+2. Click on the *Go To Azure AI Foundry Portal* button
+3. On the Azure AI Foundry Portal, go to *Playgrounds >> Chat* from the right side menu
+4. On the playground page, select Add your data and click on the *Add a data source* button
+   ![AI Foundry Chat Playground](src/images/aifoundry-chatpg.png)
+5. Select following values in the dropdown and give a name to the index.
+   > **Note:** Note the name of the index specified here, as we will need it to update the Environment variables in the Azure Functions app.
 
-3. Upload the images in the `product-images` directory to a blob container in the Storage Account. Generate a **SAS URL** for the blob storage container. Set the expiry date according to the planned lifecycle of your application.
-
-    <img src="./SAS-dialog.png" alt="drawing" style="width:400px;"/>
-
-4. Run the cells in the `create-index-and-database.ipynb` notebook to upload the product data to Azure AI Search and the Azure SQL Database.
-
-5. Create a file named `local.settings.json` in the `api` directory of the repository. Make sure to add the following variables to `local.settings.json`. The `AzureWebJobsStorage` variable can be left empty for development purposes.
-
-```
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "",
-    "FUNCTIONS_WORKER_RUNTIME": "python",
-    "PYTHON_ENABLE_INIT_INDEXING": "1",
-    "AZURE_OPENAI_ENDPOINT": "https://XXX.openai.azure.com/",
-    "AZURE_OPENAI_API_KEY": "XXX",
-    "AZURE_OPENAI_CHAT_DEPLOYMENT" : "gpt-35-turbo-16k",
-    "AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT" : "text-embedding-ada-002",
-    "AZURE_OPENAI_API_VERSION" : "2023-07-01-preview",
-    "AZURE_SEARCH_ENDPOINT": "https://XXX.search.windows.net",
-    "AZURE_SEARCH_API_KEY": "XXX",
-    "AZURE_SEARCH_INDEX": "products",
-    "AZURE_SPEECH_REGION": "westeurope",
-    "AZURE_SPEECH_API_KEY": "XXX",
-    "TEXT_ANALYTICS_ENDPOINT": "XXX",
-    "TEXT_ANALYTICS_KEY": "XXX",
-    "BLOB_SAS_URL": "https://XXX",
-    "SQL_DB_SERVER": "XXX.database.windows.net",
-    "SQL_DB_USER": "XXX",
-    "SQL_DB_PASSWORD": "XXX",
-    "SQL_DB_NAME": "OutdoorEquipmentShop",
-    "BING_KEY": "XXX",
-    "BING_SEARCH_URL": "https://api.bing.microsoft.com/v7.0/search"
-  }
-}
-```
-
-6. In case you are using an Azure Speech Services instance in a region different from `westeurope`, update line 17 of `main.js` in the `src/js` folder to reflect that.
-
-7. This application can be deployed using Azure Static Web Apps. Refer to this [quickstart](https://docs.microsoft.com/azure/static-web-apps/getting-started?tabs=vanilla-javascript) to learn more. This application is using no front-end frameworks.
-
-    If you are using **Visual Studio Code**, you can execute the following steps:
-    - Install  the Azure Static Web Apps and Azure Functions extensions
-    - Right-click on Static Web Apps extension folder, select **Create Static Web App ... (Advanced)** with the following parameters:  
-
-      | Parameter                 | Description                                                      |
-      |---------------------------|------------------------------------------------------------------|
-      | Resource group            | Select an existing resource group or create a new one            |
-      | Name                      | Choose a name, e.g., avatar-app                                  |
-      | Pricing option            | Standard                                                         |
-      | Region                    | Select the same or a nearby region as for the above resources    |
-      | Framework                 | Custom                                                           |
-      | Application code location | avatar/interactive/src                                           |
-      | Build output location     | (Leave blank)                                                    |      
+   ![Add Data Source](src/images/adddatasource.png)
+6. Click *Next* and upload the files
+   ![Upload Files](src/images//uploadfiles.png)
+7. Click on *Upload files* button, the files should upload successfully.
+   ![Uploaded files](src/images/filesuploaded.png)
+8. Click on the *Next* button. On the Data Management page, keep the default selection and click on the *Next* button.
+9. On the Data connection page, select authentication type as the *API key* and click on the *Next* button.
+   ![alt text](src/images/dataconnectionauth.png)
+10. Review the settings and click on the *Save and close* button
+    ![alt text](src/images/review.png)
 
 
-8. In the VSCode Static Web Apps extension, navigate to **Application Settings** of your app and right-click **Upload Local Settings**. This will populate the settings from `local.settings.json` to the web app.
+### 2: Configure the index in the Azure Function App
 
-8. In the VSCode Static Web Apps extension, right-click on your app name and select **Browse site** to use the app
+1. Go to the Azure Function App - *avatarcohostapi*
+2. Select *Settings >> Environment variables* from the left side menu   
+![alt text](src/images/functionapp-envvars.png)
+3. Click on the *AZURE_SEARCH_INDEX* environment variable and update the value with the name of the index created in the previous step. Click on the *Apply* button on this screen.
+![alt text](src/images/searchindexvar.png)
+4. Click on the *Apply* button on the main page of Environment Variables to save the changes.
+![alt text](src/images/env-vars-apply.png)
+5. Function App will ask restart to apply the changes. Click *Confirm* 
+![alt text](src/images/confirm.png)
 
-## Notes on running the solution locally
 
-- ODBC Driver 17 for SQL Server is required to run the solution locally.
-- Use the Static Web Apps CLI to run the solution. After navigating in the terminal to `avatar/interactive`, the following command can be used to run the solution: `swa start src --api-location api`.
-- The solution has been tested with Node version 18.0.0.
 
-## Hints on debugging
 
-- The login screen is currently non-functional. If you click on 'login' without entering any information, you will be redirected to the main page.
-- If the avatar is not loading on the main page, refresh the web page with the console open. This will show the error message.
+
+
