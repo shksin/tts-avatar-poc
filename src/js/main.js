@@ -260,9 +260,9 @@ function speak(text, endingSilenceMs = 0) {
 }
 
 function speakNext(text, endingSilenceMs = 0) {
-  let ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="loud" rate="fast" pitch="high"></prosody></voice></speak>`
+  let ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
   if (endingSilenceMs > 0) {
-    ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<break time='${endingSilenceMs}ms' /><prosody volume="loud" rate="fast" pitch="high"></prosody></voice></speak>`
+    ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<break time='${endingSilenceMs}ms' /><prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
   }
 
   lastSpeakTime = new Date()
@@ -378,7 +378,7 @@ async function greeting() {
   text = `Howdy! My name is ${TalkingAvatarCharacter}. Your co-host for today. How can I help you?`;
   addToConversationHistory(text, "light")
 
-  var spokenText = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="loud" rate="fast" pitch="high"></prosody></voice></speak>`
+  var spokenText = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
 
   console.log('spokenText', spokenText)
   avatarSynthesizer.speakSsmlAsync(spokenText, (result) => {
