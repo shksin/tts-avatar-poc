@@ -1,6 +1,6 @@
 # Text to Speech Avatar as CoHost
 
-<img src="./demo-screenshot.png" alt="drawing" style="width:1200px;"/>
+<img src="./src/images/demo-screenshot.png" alt="drawing" style="width:1200px;"/>
 
 
 ## Uploading content to Azure OpenAI for Avatar CoHost to use as grounding data
