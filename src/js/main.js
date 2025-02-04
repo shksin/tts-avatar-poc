@@ -260,9 +260,9 @@ function speak(text, endingSilenceMs = 0) {
 }
 
 function speakNext(text, endingSilenceMs = 0) {
-  let ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-US'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}</voice></speak>`
+  let ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}</voice></speak>`
   if (endingSilenceMs > 0) {
-    ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-US'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<break time='${endingSilenceMs}ms' /></voice></speak>`
+    ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<break time='${endingSilenceMs}ms' /></voice></speak>`
   }
 
   lastSpeakTime = new Date()
@@ -378,7 +378,7 @@ async function greeting() {
   text = `Hi, my name is ${TalkingAvatarCharacter}. How can I help you?`;
   addToConversationHistory(text, "light")
 
-  var spokenText = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-US'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}</voice></speak>`
+  var spokenText = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}</voice></speak>`
 
   console.log('spokenText', spokenText)
   avatarSynthesizer.speakSsmlAsync(spokenText, (result) => {
