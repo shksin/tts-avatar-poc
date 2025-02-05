@@ -75,7 +75,7 @@ namespace AvatarApp.Function
                 // warning to acknowledge and this and use the subject-to-change AddDataSource method.
 #pragma warning disable AOAI001
 
-                ChatCompletionOptions options = new() { Temperature = (float?)0.7, MaxOutputTokenCount = 1000 };
+                ChatCompletionOptions options = new(); // { Temperature = (float?)0.7, MaxOutputTokenCount = 1000 };
                 options.AddDataSource(new AzureSearchChatDataSource()
                 {
                     Endpoint = new Uri(searchEndpoint),
@@ -85,7 +85,7 @@ namespace AvatarApp.Function
 
                 // call CompletChatStream method to get the response from Azure OpenAI
 
-                CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(chatMessages);
+                CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(chatMessages, options);
 
                 req.HttpContext.Response.Headers.Append("Content-Type", "text/event-stream");
                 foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
