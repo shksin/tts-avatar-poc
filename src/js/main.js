@@ -17,14 +17,14 @@ You are an AI assistant that helps people find information about AGL Energy Ways
 - IMPORTANT: Pay attention to the language the customer is using in their latest statement and ALWAYS respond in the same language!
 `
 
-var TTSVoice = "en-AU-WilliamNeural" //en-US-AndrewMultilingualNeural" // 
+var TTSVoice = "en-US-AndrewMultilingualNeural" // en-AU-WilliamNeural
 const CogSvcRegion = "southeastasia" // Fill your Azure cognitive services region here, e.g. westus2
 var TalkingAvatarCharacter = "Max"
 var TalkingAvatarStyle = "business"
 const continuousRecording = false
 
 //supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
-supported_languages = ["en-AU", "zh-HK", "zh-CN", "hi-IN"]
+supported_languages = ["en-US", "zh-HK", "zh-CN", "en-AU"]
 
 const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
 
@@ -250,9 +250,9 @@ function speak(text, endingSilenceMs = 0) {
 }
 
 function speakNext(text, endingSilenceMs = 0) {
-  let ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
+  let ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-US'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
   if (endingSilenceMs > 0) {
-    ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<break time='${endingSilenceMs}ms' /><prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
+    ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-US'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<break time='${endingSilenceMs}ms' /><prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
   }
 
   lastSpeakTime = new Date()
@@ -314,11 +314,11 @@ function connectToAvatarService() {
   switch(TalkingAvatarCharacter) {
     case "Lisa":
       TalkingAvatarStyle = "casual-sitting"
-      TTSVoice = "en-AU-NatashaNeural" //en-US-AvaMultilingualNeural" //
+      TTSVoice = "en-US-AvaMultilingualNeural" //en-AU-NatashaNeural
       break    
     case "Max":
       TalkingAvatarStyle = "business"
-      TTSVoice = "en-AU-WilliamNeural" //en-US-AndrewMultilingualNeural" // 
+      TTSVoice = "en-US-AndrewMultilingualNeural" //en-AU-WilliamNeural
       break
      
   }
@@ -368,7 +368,7 @@ async function greeting() {
   text = `Howdy! My name is ${TalkingAvatarCharacter}. Your co-host for today. How can I help you?`;
   addToConversationHistory(text, "light")
 
-  var spokenText = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-AU'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
+  var spokenText = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='en-US'><voice name='${TTSVoice}'><mstts:leadingsilence-exact value='0'/>${text}<prosody volume="x-loud" rate="x-fast" pitch="x-high"></prosody></voice></speak>`
 
   console.log('spokenText', spokenText)
   avatarSynthesizer.speakSsmlAsync(spokenText, (result) => {
