@@ -184,20 +184,7 @@ function handleUserQuery(userQuery, userQueryHTML) {
             responseToken = chunkString
             console.log('responseToken', responseToken)
             
-            if (responseToken !== undefined && responseToken !== null) {
-              // try {
-              //   const isObject = (x) => typeof x === 'object' && !Array.isArray(x) && x !== null
-              //   console.log(responseToken, typeof responseToken)
-              //   product = JSON.parse(responseToken)
-              //   console.log(product, isObject(product), typeof product)
-              //   if (isObject(product)) {
-              //     addProductToChatHistory(product)
-              //     console.log(product)
-              //     responseToken = ''
-              //   }
-              // } catch (error) {
-              //   console.log('Error parsing product:', error)
-              // }
+            if (responseToken !== undefined && responseToken !== null) {              
               assistantReply += responseToken // build up the assistant message
               displaySentence += responseToken // build up the display sentence
 
@@ -473,24 +460,6 @@ function addToConversationHistory(item, historytype) {
   newItem.textContent = item;
   list.appendChild(newItem);
 }
-
-// function addProductToChatHistory(product) {
-//   const list = document.getElementById('chathistory');
-//   const listItem = document.createElement('li');
-//   listItem.classList.add('product');
-//   listItem.innerHTML = `
-//     <fluent-card class="product-card">
-//       <div class="product-card__header">
-//         <img src="${product.image_url}" alt="tent" width="100%">
-//       </div>
-//       <div class="product-card__content">
-//         <div><span class="product-card__price">$${product.special_offer}</span> <span class="product-card__old-price">$${product.original_price}</span></div>
-//         <div>${product.tagline}</div>
-//       </div>
-//     </fluent-card>
-//   `;
-//   list.appendChild(listItem);
-// }
 
 // Make video background transparent by matting
 function makeBackgroundTransparent(timestamp) {
