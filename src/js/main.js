@@ -376,6 +376,7 @@ async function greeting() {
       console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
     } else {
       console.log("Unable to speak text. Result ID: " + result.resultId)
+      console.log(result)
       if (result.reason === SpeechSDK.ResultReason.Canceled) {
         let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
         console.log(cancellationDetails.reason)
