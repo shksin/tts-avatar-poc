@@ -7,6 +7,7 @@
 - [Modifying System Prompts](#modifying-system-prompts)
 
 
+
 ## Uploading conference data files 
 
 ### Upload Documents to Blob Storage, then Vectorize and Index via Azure Search
@@ -39,7 +40,6 @@
    ![alt text](src/images/index-doc-count.png)
 
 
-
 ## Modifying System Prompts
 
 1. Clone the repository if not already done.
@@ -54,6 +54,38 @@
    ```bash
    git add .
    git commit -m "Updated system prompts"
+   git push
+   ```
+
+4. Committing the changes will trigger a GitHub Actions workflow that will deploy the changes to the Azure Static Web App
+[GitHub Actions Workflow](https://github.com/shksin/tts-avatar-poc/actions)
+
+![GitHub Actions Workflow](src/images/ghactions.png)
+
+5. Once, the workflow has successfully updated, Navigate to the [Azure Static Web App](https://yellow-bay-059942200.4.azurestaticapps.net/) to validate the changes.
+
+
+## Suggested Questions
+
+1. Clone the repository if not already done.
+      ```bash
+      git clone https://github.com/shksin/tts-avatar-poc.git
+      ```
+
+2. Navigate to the *src/index.html* file and searc for *Sample Questions Start*
+      ![alt text](src/images/suggestedquestions.png)
+
+   ### Updating the suggested questions
+   Update the question passed to ```handleUserQuery``` function and update the displayed question with the new question.
+
+   ### Hiding Suggested Questions in the UI
+   Comment out the section between ```Sample Questions Start``` and ```Sample Questions End```
+
+
+3. Save the file and push the changes to the repository.
+   ```bash
+   git add .
+   git commit -m "Updated suggested questions"
    git push
    ```
 
