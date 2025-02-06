@@ -194,6 +194,11 @@ function handleUserQuery(userQuery, userQueryHTML) {
               } else {
                 responseToken = responseToken.replace(/\n/g, '')
                 responseToken = responseToken.replace(/[*\uD83C-\uDBFF\uDC00-\uDFFF]+/g, '');
+                responseToken = responseToken.replace(/&/g, '&amp;')
+                responseToken = responseToken.replace(/</g, '&lt;')
+                responseToken = responseToken.replace(/>/g, '&gt;')
+                responseToken = responseToken.replace(/"/g, '&quot;')
+                responseToken = responseToken.replace(/'/g, '&apos;')
                 spokenSentence += responseToken // build up the spoken sentence
 
                 if (responseToken.length === 1 || responseToken.length === 2) {
@@ -265,6 +270,7 @@ function speakNext(text, endingSilenceMs = 0) {
         lastSpeakTime = new Date()
       } else {
         console.log(`Error occurred while speaking the SSML. Result ID: ${result.resultId}`)
+        console.log(result)
       }
 
       if (spokenTextQueue.length > 0) {
