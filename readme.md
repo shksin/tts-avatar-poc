@@ -4,75 +4,60 @@
 
 ## TODO
 - [Uploading conference data files](#uploading-conference-data-files)
-- [Changing System Prompts](#changing-system-prompts)
+- [Modifying System Prompts](#modifying-system-prompts)
 
-## Uploading conference data files
 
-### 1. Upload Documents and Create Index via Azure AI Foundry Portal
+## Uploading conference data files 
 
-The quickest way to do this via Azure AI Foundry Portal. Follow the steps below to create a new index:
+### 1. Upload Documents to Blob Storage, then Vectorize and Index via Azure Search
 
-1. Select your Azure OpenAI resource - *avatarcohostai*
-2. Click on the *Go To Azure AI Foundry Portal* button
-3. On the Azure AI Foundry Portal, go to *Playgrounds >> Chat* from the right side menu
-4. On the playground page, select Add your data and click on the *Add a data source* button
-   ![AI Foundry Chat Playground](src/images/aifoundry-chatpg.png)
-5. Select following values in the dropdown and give a name to the index.
-   > **Note:** Note the name of the index specified here, as we will need it to update the Environment variables in the Azure Functions app.
+1. Go to the Azure Blob Storage account - *aglconfdatastore*
+2. Navigate to *Data Storage >> Containers* from the left side menu, and select *agl-conf-files* container   
+3. Upload the new files and click on Upload button
+   > **Note:** *Do not delete the existing file **Rik Irons-Mclean Work Bio Oct 2024.pdf** as it contains Rik's bio who is a guest speaker from Microsoft speaking at the conference*
+
+   ![storageaccountupload](src/images/storageaccountupload.png)
+  
+4. Once the files are uploaded, Go to AI Search resource - *avatarcohostsearch* and navigate to *Search Management >> Indexers* from the left side menu.
+   Click on the indexer name *aglconfindex-indexer* 
+   ![alt text](src/images/indexer.png)
+
+4. Click on the *Run* button to run the Indexer
+   ![alt text](src/images/indexer-run.png)
+   Click Refresh and wait until all the new docs are successfully indexed.
+
+   ![alt text](src/images/indexer-run-success.png)
+
+5. Once the indexer has run successfully, Go to *Search Management >> Indexes* and wait until the Document count has gone up.
+   >**Note:** It might take a few minutes for the document count to update. 
    
-   ![Add Data Source](src/images/adddatasource.png)
-6. Click *Next* and upload the files
-   ![Upload Files](src/images//uploadfiles.png)
-7. Click on *Upload files* button, the files should upload successfully.
-   ![Uploaded files](src/images/filesuploaded.png)
-8. Click on the *Next* button. On the Data Management page, keep the default selection and click on the *Next* button.
-![alt text](src/images/data-management.png)
-9. On the Data connection page, select authentication type as the *API key* and click on the *Next* button.
-   ![alt text](src/images/dataconnectionauth.png)
-10. Review the settings and click on the *Save and close* button
-    ![alt text](src/images/review.png)
-11. Document Ingestion and Index creation will start.
-![alt text](src/images/ingestion-inprogress.png)
-Wait for the process to complete. Once the process is complete, you will see the index details on the screen.
-![alt text](src/images/ingestioncomplete.png)
-
-### 2. Configure Azure Search Index name in the Azure Function App
-
-1. Go to the Azure Function App - *avatarcohostapi*
-2. Select *Settings >> Environment variables* from the left side menu   
-![alt text](src/images/functionapp-envvars.png)
-3. Click on the *AZURE_SEARCH_INDEX* environment variable and update the value with the name of the index created in the previous step. Click on the *Apply* button on this screen.
-![alt text](src/images/searchindexvar.png)
-4. Click on the *Apply* button on the main page of Environment Variables to save the changes.
-![alt text](src/images/env-vars-apply.png)
-5. Function App will ask restart to apply the changes. Click *Confirm* 
-![alt text](src/images/confirm.png)
+   ![alt text](src/images/index-doc-count.png)
 
 
 
-## Changing System Prompts
+## modifying System Prompts
 
 1. Clone the repository if not already done.
-   ```bash
-   git clone https://github.com/shksin/tts-avatar-poc.git
-   ```
+      ```bash
+      git clone https://github.com/shksin/tts-avatar-poc.git
+      ```
 
 2. Navigate to the *src/js* folder and open the *main.js* file and update the *system_prompt* variable as needed.
    ![System Prompt](src/images/systemprompt.png)
 
 3. Save the file and push the changes to the repository.
-```bash
-git add .
-git commit -m "Updated system prompts"
-git push
-```
+   ```bash
+   git add .
+   git commit -m "Updated system prompts"
+   git push
+   ```
 
 4. Committing the changes will trigger a GitHub Actions workflow that will deploy the changes to the Azure Static Web App
 [GitHub Actions Workflow](https://github.com/shksin/tts-avatar-poc/actions)
 
 ![GitHub Actions Workflow](src/images/ghactions.png)
 
-5. Once, the workflow has successfully updated, Navigate to the [Azure Static Web App](https://yellow-bay-059942200.4.azurestaticapps.net/) to see the changes.
+5. Once, the workflow has successfully updated, Navigate to the [Azure Static Web App](https://yellow-bay-059942200.4.azurestaticapps.net/) to validate the changes.
 
 
 
