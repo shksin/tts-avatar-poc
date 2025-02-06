@@ -9,7 +9,7 @@
 
 ## Uploading conference data files 
 
-### 1. Upload Documents to Blob Storage, then Vectorize and Index via Azure Search
+### Upload Documents to Blob Storage, then Vectorize and Index via Azure Search
 
 1. Go to the Azure Blob Storage account - *aglconfdatastore*
 2. Navigate to *Data Storage >> Containers* from the left side menu, and select *agl-conf-files* container   
@@ -22,20 +22,25 @@
    Click on the indexer name *aglconfindex-indexer* 
    ![alt text](src/images/indexer.png)
 
-4. Click on the *Run* button to run the Indexer
+5. Click on the *Reset* button
+   ![alt text](src/images/indexer-reset.png)
+   Click *Refresh* and make sure Reset is done
+   ![alt text](src/images/indexer-reset-done.png)
+   
+6. Then Click the *Run* button to run the Indexer
    ![alt text](src/images/indexer-run.png)
-   Click Refresh and wait until all the new docs are successfully indexed.
+   Click *Refresh* and wait until all the new docs are successfully indexed.
 
    ![alt text](src/images/indexer-run-success.png)
 
-5. Once the indexer has run successfully, Go to *Search Management >> Indexes* and wait until the Document count has gone up.
+7. Once the indexer has run successfully, Go to *Search Management >> Indexes* and wait until the Document count has gone up.
    >**Note:** It might take a few minutes for the document count to update. 
    
    ![alt text](src/images/index-doc-count.png)
 
 
 
-## modifying System Prompts
+## Modifying System Prompts
 
 1. Clone the repository if not already done.
       ```bash
