@@ -14,6 +14,7 @@ using System.ClientModel;
 using Azure.AI.OpenAI.Chat;
 using Newtonsoft.Json;
 using api;
+using System.Text.RegularExpressions;
 
 namespace AvatarApp.Function
 {
@@ -35,7 +36,7 @@ namespace AvatarApp.Function
         }
 
         [Function("get-oai-response")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        public async Task Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -85,7 +86,7 @@ namespace AvatarApp.Function
 
                 // call CompletChatStream method to get the response from Azure OpenAI
 
-                CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(chatMessages, options);
+                CollectionResult<StreamingChatCompletionUpdate> completionUpdates = chatClient.CompleteChatStreaming(chatMessages,options);
 
                 req.HttpContext.Response.Headers.Append("Content-Type", "text/event-stream");
                 foreach (StreamingChatCompletionUpdate completionUpdate in completionUpdates)
@@ -93,7 +94,10 @@ namespace AvatarApp.Function
                     foreach (ChatMessageContentPart contentPart in completionUpdate.ContentUpdate)
                     {
                         _logger.LogInformation(contentPart.Text);
-                        await req.HttpContext.Response.WriteAsync(contentPart.Text);
+                        //remove texts like ** and [doc1], [doc2] etc from the responseText
+                        string resonseText = Regex.Replace(contentPart.Text, @"\*\*|\[doc\d+\]", "");                       
+
+                        await req.HttpContext.Response.WriteAsync(resonseText);
                         await req.HttpContext.Response.Body.FlushAsync();
                         //await Task.Delay(10); // Simulate delay
                     }
@@ -102,15 +106,15 @@ namespace AvatarApp.Function
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while processing the request.");
-                return new ContentResult
-                {
-                    Content = $"{{\"error\": \"{ex.Message + ex.StackTrace}\"}}",
-                    ContentType = "application/json",
-                    StatusCode = (int)200
-                };
+                //return new ContentResult
+                //{
+                //    Content = $"{{\"error\": \"{ex.Message + ex.StackTrace}\"}}",
+                //    ContentType = "application/json",
+                //    StatusCode = (int)200
+                //};
             }
 
-            return new StatusCodeResult((int)200);
+            //return new StatusCodeResult((int)200);
         }
     }
 }
