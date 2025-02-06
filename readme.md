@@ -2,10 +2,11 @@
 
 <img src="./src/images/demo-screenshot.png" alt="drawing" style="width:1200px;"/>
 
+## TODO
+- [Uploading conference data files](#uploading-conference-data-files)
+- [Changing System Prompts](#changing-system-prompts)
 
-
-
-## Uploading content to Azure OpenAI for Avatar CoHost to use as grounding data
+## Uploading conference data files
 
 ### 1. Upload Documents and Create Index via Azure AI Foundry Portal
 
@@ -35,13 +36,12 @@ The quickest way to do this via Azure AI Foundry Portal. Follow the steps below 
 Wait for the process to complete. Once the process is complete, you will see the index details on the screen.
 ![alt text](src/images/ingestioncomplete.png)
 
-### 2: Configure the index name in the Azure Function App
+### 2. Configure Azure Search Index name in the Azure Function App
 
 1. Go to the Azure Function App - *avatarcohostapi*
 2. Select *Settings >> Environment variables* from the left side menu   
 ![alt text](src/images/functionapp-envvars.png)
 3. Click on the *AZURE_SEARCH_INDEX* environment variable and update the value with the name of the index created in the previous step. Click on the *Apply* button on this screen.
-![alt text](image-5.png)
 ![alt text](src/images/searchindexvar.png)
 4. Click on the *Apply* button on the main page of Environment Variables to save the changes.
 ![alt text](src/images/env-vars-apply.png)
