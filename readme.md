@@ -3,9 +3,11 @@
 Browse to access your AI Co host here: [Avatar Co Host App](https://yellow-bay-059942200.4.azurestaticapps.net/)
 <img src="./src/images/demo-screenshot.png" alt="drawing" style="width:1200px;"/>
 
-## TODO
+## Table of Contents
 - [Uploading conference data files](#uploading-conference-data-files)
 - [Modifying System Prompts](#modifying-system-prompts)
+- [Suggested Questions](#suggested-questions)
+- [Update Multlingual Supported Languages](#update-multilingual-supported-languages)
 
 
 
@@ -119,6 +121,27 @@ Click on *Refresh* util the status changes to *Success*
 ![GitHub Actions Workflow](src/images/ghactions.png)
 
 5. Once, the workflow has successfully updated, Navigate to the [Azure Static Web App](https://yellow-bay-059942200.4.azurestaticapps.net/) to validate the changes.
+
+
+## Update Multilingual Supported Languages
+
+1. Clone the repository if not already done.
+      ```bash
+      git clone https://github.com/shksin/tts-avatar-poc.git
+      ```
+
+2. Navigate to the *src/js* folder and open the *main.js* file and search for *Supported languages for Multilingual Languages*
+
+   ![alt text](src/images/multilingualsupport.png)
+
+- To add a new language:
+  - Pick from the list of supported languages from here: [MultiLingual Language Support](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts#multilingual-voices)
+  - Update the value in `supported_languages` array.
+
+Current language supported are : English, Mandarin, German and Arabic
+>**Note:** Only **4** languages can supported at a time. To add a new langauge, remove a language from the array above and add the new language.
+
+
 
 
 

@@ -25,6 +25,7 @@ var TalkingAvatarCharacter = "Max"
 var TalkingAvatarStyle = "business"
 const continuousRecording = false
 
+// Supported languages for Multilingual Languages
 //auto detect supported multilinguallanguages - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts#multilingual-voices
 //only 4 languages are supported for automatic language detection. Pick 4 from above link
 supported_languages = ["en-US", "zh-CN", "de-DE", "ar-EG"] // english, mandarin, german, arabic
