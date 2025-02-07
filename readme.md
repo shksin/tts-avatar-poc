@@ -23,21 +23,44 @@
    Click on the indexer name *aglconfindex-indexer* 
    ![alt text](src/images/indexer.png)
 
-5. Click on the *Reset* button
-   ![alt text](src/images/indexer-reset.png)
-   Click *Refresh* and make sure Reset is done
-   ![alt text](src/images/indexer-reset-done.png)
+5. Click on the *Delete* button
+![alt text](src/images/delete-indexer.png)
+
+Select all associated resources and click *Delete*
+![alt text](src/images/delete-indexer-resources.png)
+
+6. Once the indexer and the associated resources are deleted, select *Overview* in left side menu and click on the *Import and Vectorize data* from the top menu.
+   ![alt text](src/images/import-and-vectorize-data.png)
+
+7. Select ```Azure Blob Storage``` as the Data Connection
+![alt text](src/images/indexer-blob-dataconnection.png)
+
+8. Select the following values for ```Configure Azure Blob Storage``` section and click *Next* 
+![alt text](src/images/configure-blob-dataconnection.png)
+
+9. Select following values for ```Vectorize your text section``` and click *Next* 
+![alt text](src/images/indexer-vectorize.png)
+
+10. Select following values for ```Enrich your data with AI skills``` and click *Next* 
+![alt text](src/images/indexer-enrich-ai-skills.png)
+
+11. Leave ```Advanced settings``` as default and click *Next* 
+![alt text](src/images/indexer-advanced-settings.png)
+
+12. Specify the Index name as *aglconfindex* and click Create
+ >**Note:** Keep the name of the index as **```aglconfindex```** as it is referenced in the API configuration.
+
+![alt text](src/images/indexer-name.png)
+
+5. Once the indexer has been created, Go to *Search Management >> Indexers* on the left menu and click on the *aglconfindex-indexer* to verify the indexer has run successfully.
+Click on *Refresh* util the status changes to *Success*
    
-6. Then Click the *Run* button to run the Indexer
-   ![alt text](src/images/indexer-run.png)
-   Click *Refresh* and wait until all the new docs are successfully indexed.
-
    ![alt text](src/images/indexer-run-success.png)
-
+   
 7. Once the indexer has run successfully, Go to *Search Management >> Indexes* and wait until the Document count has gone up.
    >**Note:** It might take a few minutes for the document count to update. 
    
-   ![alt text](src/images/index-doc-count.png)
+![alt text](src/images/index-doc-count.png)
 
 
 ## Modifying System Prompts
