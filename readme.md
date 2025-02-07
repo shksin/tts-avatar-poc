@@ -1,5 +1,6 @@
 # Text to Speech Avatar as CoHost
 
+Browse to access your AI Co host here: [Avatar Co Host App](https://yellow-bay-059942200.4.azurestaticapps.net/)
 <img src="./src/images/demo-screenshot.png" alt="drawing" style="width:1200px;"/>
 
 ## TODO

@@ -24,8 +24,9 @@ var TalkingAvatarCharacter = "Max"
 var TalkingAvatarStyle = "business"
 const continuousRecording = false
 
-//supported_languages = ["en-US", "de-DE", "zh-CN", "nl-NL"] // The language detection engine supports a maximum of 4 languages
-supported_languages = ["en-US", "zh-HK", "zh-CN", "en-AU"]
+//auto detect supported multilinguallanguages - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts#multilingual-voices
+//only 4 languages are supported for automatic language detection. Pick 4 from above link
+supported_languages = ["en-US", "zh-CN", "de-DE", "ar-EG"] // english, mandarin, german, arabic
 
 const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
 
